@@ -1,3 +1,5 @@
+// this will handle dining requests
+
 var http = require('http');
 var https = require('https');
 var cookie = require('cookie');
