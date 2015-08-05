@@ -4,21 +4,39 @@ var https = require('https');
 var cookie = require('cookie');
 var querystring = require('querystring');
 var cheerio = require('cheerio');
-
-var initReq = https.get("https://disneyworld.disney.go.com/dining/magic-kingdom/be-our-guest-restaurant/", function(res) {
-    var sessionCookie = cookie.parse(res.headers['set-cookie'].join(';'))['PHPSESSID'];
-    // sessionCookie = '19bgblu2834sda6m7vlf6vt0b2';
-    console.log(sessionCookie);
-    var data = '';
-    res.on("data", function(chunk) {
-        data += chunk;
+var Q = require('q');
+/**
+ * Function to get session cookie and csrf token
+ */
+var getSessionData = function() {
+    return Q.Promise(function(resolve, reject, notify) {
+        console.log('running session call');
+        var initReq = https.get("https://disneyworld.disney.go.com/dining/magic-kingdom/be-our-guest-restaurant/", function(res) {
+            var sessionCookie = cookie.parse(res.headers['set-cookie'].join(';'))['PHPSESSID'];
+            // console.log(sessionCookie);
+            var data = '';
+            res.on("data", function(chunk) {
+                data += chunk;
+            });
+            res.on('end', function() {
+                $ = cheerio.load(data);
+                var csrfToken = $('#pep_csrf').val();
+                resolve({
+                    sessionCookie: sessionCookie,
+                    csrfToken: csrfToken
+                });
+            });
+        }).on('error', function(e) {
+            reject(new Error("cannot retrieve session data " + e.message));
+        });
     });
-    res.on('end', function() {
-        $ = cheerio.load(data);
-        var csrfToken = $('#pep_csrf').val();
-        console.log(csrfToken);
+};
+// eventually this will get passed information to process
+var hasReservation = function(sessionData) {
+    return Q.Promise(function(resolve, reject, notify) {
+        console.log('running reservation call');
         var postData = querystring.stringify({
-            pep_csrf: csrfToken,
+            pep_csrf: sessionData.csrfToken,
             searchDate: '2015-08-06',
             skipPricing: true,
             searchTime: '22:00',
@@ -33,7 +51,7 @@ var initReq = https.get("https://disneyworld.disney.go.com/dining/magic-kingdom/
             headers: {
                 // these are the two things you definitely need
                 // the s_vi one looks like it just needs to have been created at some point, keep alive is a couple years so don't need to try and get it each time
-                'Cookie': 'PHPSESSID=' + sessionCookie + '; s_vi=[CS]v1|2AE01B6C05012E2B-4000013760054F62[CE]',
+                'Cookie': 'PHPSESSID=' + sessionData.sessionCookie + '; s_vi=[CS]v1|2AE01B6C05012E2B-4000013760054F62[CE]',
                 // need these otherwise it 302
                 Host: 'disneyworld.disney.go.com',
                 Origin: 'https://disneyworld.disney.go.com',
@@ -58,7 +76,7 @@ var initReq = https.get("https://disneyworld.disney.go.com/dining/magic-kingdom/
             response.on('end', function() {
                 console.log(response.statusCode);
                 console.log(response.statusMessage);
-                console.log(str);
+                resolve(str);
             });
         }
         var wdwReq = https.request(options, callback).on('error', function(err) {
@@ -68,6 +86,8 @@ var initReq = https.get("https://disneyworld.disney.go.com/dining/magic-kingdom/
         wdwReq.write(postData);
         wdwReq.end();
     });
-}).on('error', function(e) {
-    console.log("Got error: " + e.message);
+};
+// run 
+getSessionData().then(hasReservation).then(function(html) {
+    console.log(html);
 });
