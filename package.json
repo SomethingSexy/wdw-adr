@@ -1,0 +1,11 @@
+{
+    "name": "wdw-dining-snipe",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "start" :"node server.js"
+    },
+    "dependencies": {
+        "cookie": "v0.1.3"
+    }
+}
