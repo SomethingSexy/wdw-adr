@@ -32,16 +32,16 @@ var getSessionData = function() {
     });
 };
 // eventually this will get passed information to process
-var hasReservation = function(sessionData) {
+var getReservationData = function(sessionData) {
     return Q.Promise(function(resolve, reject, notify) {
         console.log('running reservation call');
         var postData = querystring.stringify({
             pep_csrf: sessionData.csrfToken,
-            searchDate: '2015-08-06',
+            searchDate: '2015-12-11',
             skipPricing: true,
-            searchTime: '22:00',
+            searchTime: '18:30',
             partySize: 2,
-            id: '16660079;entityType=restaurant',
+            id: '90002066;entityType=restaurant',
             type: 'dining'
         });
         var options = {
@@ -87,7 +87,16 @@ var hasReservation = function(sessionData) {
         wdwReq.end();
     });
 };
+var isReservationAvailable = function(html) {
+    console.log('processing response');
+    $ = cheerio.load(html);
+    if ($('.ctaNoAvailableTimesContainer').length) {
+        return false;
+    } else {
+        return true;
+    }
+};
 // run 
-getSessionData().then(hasReservation).then(function(html) {
-    console.log(html);
-});
+getSessionData().then(getReservationData).then(isReservationAvailable).then(function(has) {
+    console.log(has);
+})
