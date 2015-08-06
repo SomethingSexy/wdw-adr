@@ -23,6 +23,7 @@ var getSessionData = function(reservation) {
             res.on('end', function() {
                 var $ = cheerio.load(data);
                 var csrfToken = $('#pep_csrf').val();
+                // add the necessary data to the reservation
                 resolve(merge(true, {
                     sessionCookie: sessionCookie,
                     csrfToken: csrfToken
@@ -86,6 +87,7 @@ var getReservationData = function(reservation) {
             response.on('end', function() {
                 console.log(response.statusCode);
                 console.log(response.statusMessage);
+                // add the raw response to the reservation data
                 resolve(merge(true, {
                     rawData: str,
                 }, reservation));
@@ -115,13 +117,13 @@ var isReservationAvailable = function(reservation) {
             return $('.buttonText', el).text();
         });
         console.log(times);
+        // add the results to the reservation data
         return merge(true, {
             results: {
                 times: times,
                 searchText: $('.diningReservationInfoText.available').text().trim()
             }
         }, reservation)
-        return {};
     }
 };
 
