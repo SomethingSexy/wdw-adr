@@ -2,5 +2,6 @@
 'use strict';
 
 var dining  = require('./dining/dining');
+var notify = require('./notify');
 
-dining();
+dining().then(notify);

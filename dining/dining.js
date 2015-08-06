@@ -6,13 +6,7 @@ var cookie = require('cookie');
 var querystring = require('querystring');
 var cheerio = require('cheerio');
 var Q = require('q');
-var nodemailer = require('nodemailer');
-var emailConfig = require('../config/email');
-var transporter = nodemailer.createTransport({
-    host: emailConfig.host,
-    port: emailConfig.port,
-    auth: emailConfig.auth
-});
+
 /**
  * Function to get session cookie and csrf token
  */
@@ -114,20 +108,9 @@ var isReservationAvailable = function(html) {
         };
     }
 };
-var notify = function(response) {
-    transporter.sendMail({
-        from: 'admin@collectionstash.com',
-        to: 'tyler.cvetan@gmail.com',
-        subject: 'Reservation',
-        text: response.searchText + '\r\n' + response.times.join(' '),
-        html: response.searchText + '<br\><br\>' + response.times.join(' ')
-    });
-    return response;
-};
+
 var run = function() {
     // run 
-    return getSessionData().then(getReservationData).then(isReservationAvailable).then(notify).then(function(has) {
-        console.log(has);
-    });
+    return getSessionData().then(getReservationData).then(isReservationAvailable);
 };
 module.exports = run;
