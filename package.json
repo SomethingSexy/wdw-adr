@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "start": "node dining.js"
+        "start": "node runner.js"
     },
     "dependencies": {
         "cookie": "v0.1.3",

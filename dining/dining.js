@@ -7,8 +7,7 @@ var querystring = require('querystring');
 var cheerio = require('cheerio');
 var Q = require('q');
 var nodemailer = require('nodemailer');
-var emailConfig = require('./email.config');
-
+var emailConfig = require('../config/email');
 var transporter = nodemailer.createTransport({
     host: emailConfig.host,
     port: emailConfig.port,
@@ -121,11 +120,14 @@ var notify = function(response) {
         to: 'tyler.cvetan@gmail.com',
         subject: 'Reservation',
         text: response.searchText + '\r\n' + response.times.join(' '),
-        html : response.searchText + '<br\><br\>' + response.times.join(' ')
+        html: response.searchText + '<br\><br\>' + response.times.join(' ')
     });
     return response;
 };
-// run 
-getSessionData().then(getReservationData).then(isReservationAvailable).then(notify).then(function(has) {
-    console.log(has);
-});
+var run = function() {
+    // run 
+    return getSessionData().then(getReservationData).then(isReservationAvailable).then(notify).then(function(has) {
+        console.log(has);
+    });
+};
+module.exports = run;
