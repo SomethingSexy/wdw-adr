@@ -1,3 +1,4 @@
+'use strict';
 // this will handle dining requests
 var http = require('http');
 var https = require('https');
@@ -5,6 +6,14 @@ var cookie = require('cookie');
 var querystring = require('querystring');
 var cheerio = require('cheerio');
 var Q = require('q');
+var nodemailer = require('nodemailer');
+var emailConfig = require('./email.config');
+
+var transporter = nodemailer.createTransport({
+    host: emailConfig.host,
+    port: emailConfig.port,
+    auth: emailConfig.auth
+});
 /**
  * Function to get session cookie and csrf token
  */
@@ -19,7 +28,7 @@ var getSessionData = function() {
                 data += chunk;
             });
             res.on('end', function() {
-                $ = cheerio.load(data);
+                var $ = cheerio.load(data);
                 var csrfToken = $('#pep_csrf').val();
                 resolve({
                     sessionCookie: sessionCookie,
@@ -68,7 +77,7 @@ var getReservationData = function(sessionData) {
                 'X-NewRelic-ID': 'Uw4BWVZSGwUCXFVVBwI='
             }
         };
-        callback = function(response) {
+        var callback = function(response) {
             var str = ''
             response.on('data', function(chunk) {
                 str += chunk;
@@ -89,14 +98,34 @@ var getReservationData = function(sessionData) {
 };
 var isReservationAvailable = function(html) {
     console.log('processing response');
-    $ = cheerio.load(html);
-    if ($('.ctaNoAvailableTimesContainer').length) {
+    console.log(html);
+    var $ = cheerio.load(html);
+    if (!$('#diningAvailabilityFlag').data('hasavailability')) {
         return false;
     } else {
-        return true;
+        // assuming there are some times available
+        // now grab the actual available times
+        var times = $('.pillLink', '.ctaAvailableTimesContainer').get().map(function(i, el) {
+            return $('.buttonText', el).text();
+        });
+        console.log(times);
+        return {
+            times: times,
+            searchText: $('.diningReservationInfoText.available').text().trim()
+        };
     }
 };
+var notify = function(response) {
+    transporter.sendMail({
+        from: 'admin@collectionstash.com',
+        to: 'tyler.cvetan@gmail.com',
+        subject: 'Reservation',
+        text: response.searchText + '\r\n' + response.times.join(' '),
+        html : response.searchText + '<br\><br\>' + response.times.join(' ')
+    });
+    return response;
+};
 // run 
-getSessionData().then(getReservationData).then(isReservationAvailable).then(function(has) {
+getSessionData().then(getReservationData).then(isReservationAvailable).then(notify).then(function(has) {
     console.log(has);
-})
+});
