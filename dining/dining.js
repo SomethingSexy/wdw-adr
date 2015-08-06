@@ -6,14 +6,14 @@ var cookie = require('cookie');
 var querystring = require('querystring');
 var cheerio = require('cheerio');
 var Q = require('q');
-
+var merge = require('merge');
 /**
  * Function to get session cookie and csrf token
  */
-var getSessionData = function() {
+var getSessionData = function(reservation) {
     return Q.Promise(function(resolve, reject, notify) {
         console.log('running session call');
-        var initReq = https.get("https://disneyworld.disney.go.com/dining/magic-kingdom/be-our-guest-restaurant/", function(res) {
+        var initReq = https.get(reservation.url, function(res) {
             var sessionCookie = cookie.parse(res.headers['set-cookie'].join(';'))['PHPSESSID'];
             // console.log(sessionCookie);
             var data = '';
@@ -23,27 +23,35 @@ var getSessionData = function() {
             res.on('end', function() {
                 var $ = cheerio.load(data);
                 var csrfToken = $('#pep_csrf').val();
-                resolve({
+                resolve(merge(true, {
                     sessionCookie: sessionCookie,
                     csrfToken: csrfToken
-                });
+                }, reservation));
             });
         }).on('error', function(e) {
             reject(new Error("cannot retrieve session data " + e.message));
         });
     });
 };
-// eventually this will get passed information to process
-var getReservationData = function(sessionData) {
+/**
+ * This function will attempt to retrieve reservation availablity data
+ */
+var getReservationData = function(reservation) {
     return Q.Promise(function(resolve, reject, notify) {
         console.log('running reservation call');
+        var time;
+        if (reservation.time === 'dinner') {
+            time = ' 80000714';
+        } else {
+            time = reservation.time;
+        }
         var postData = querystring.stringify({
-            pep_csrf: sessionData.csrfToken,
-            searchDate: '2015-12-11',
+            pep_csrf: reservation.csrfToken,
+            searchDate: reservation.date,
             skipPricing: true,
             searchTime: '18:30',
-            partySize: 2,
-            id: '90002066;entityType=restaurant',
+            partySize: reservation.partySize,
+            id: reservation.id,
             type: 'dining'
         });
         var options = {
@@ -53,7 +61,7 @@ var getReservationData = function(sessionData) {
             headers: {
                 // these are the two things you definitely need
                 // the s_vi one looks like it just needs to have been created at some point, keep alive is a couple years so don't need to try and get it each time
-                'Cookie': 'PHPSESSID=' + sessionData.sessionCookie + '; s_vi=[CS]v1|2AE01B6C05012E2B-4000013760054F62[CE]',
+                'Cookie': 'PHPSESSID=' + reservation.sessionCookie + '; s_vi=[CS]v1|2AE01B6C05012E2B-4000013760054F62[CE]',
                 // need these otherwise it 302
                 Host: 'disneyworld.disney.go.com',
                 Origin: 'https://disneyworld.disney.go.com',
@@ -78,7 +86,9 @@ var getReservationData = function(sessionData) {
             response.on('end', function() {
                 console.log(response.statusCode);
                 console.log(response.statusMessage);
-                resolve(str);
+                resolve(merge(true, {
+                    rawData: str,
+                }, reservation));
             });
         }
         var wdwReq = https.request(options, callback).on('error', function(err) {
@@ -89,10 +99,13 @@ var getReservationData = function(sessionData) {
         wdwReq.end();
     });
 };
-var isReservationAvailable = function(html) {
+/**
+ * This function will process the data in a more human readable format
+ */
+var isReservationAvailable = function(reservation) {
     console.log('processing response');
-    console.log(html);
-    var $ = cheerio.load(html);
+    console.log(reservation.rawData);
+    var $ = cheerio.load(reservation.rawData);
     if (!$('#diningAvailabilityFlag').data('hasavailability')) {
         return false;
     } else {
@@ -102,15 +115,17 @@ var isReservationAvailable = function(html) {
             return $('.buttonText', el).text();
         });
         console.log(times);
-        return {
-            times: times,
-            searchText: $('.diningReservationInfoText.available').text().trim()
-        };
+        return merge(true, {
+            results: {
+                times: times,
+                searchText: $('.diningReservationInfoText.available').text().trim()
+            }
+        }, reservation)
+        return {};
     }
 };
 
-var run = function() {
+module.exports = function(reservation) {
     // run 
-    return getSessionData().then(getReservationData).then(isReservationAvailable);
+    return getSessionData(reservation).then(getReservationData).then(isReservationAvailable);
 };
-module.exports = run;

@@ -16,8 +16,8 @@ var notify = function(response) {
             from: 'admin@collectionstash.com',
             to: 'tyler.cvetan@gmail.com',
             subject: 'Reservation',
-            text: response.searchText + '\r\n' + response.times.join(' '),
-            html: response.searchText + '<br\><br\>' + response.times.join(' ')
+            text: response.results.searchText + '\r\n' + response.results.times.join(' '),
+            html: response.results.searchText + '<br\><br\>' + response.results.times.join(' ')
         });
     }
     return response;
