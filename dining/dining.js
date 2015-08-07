@@ -1,6 +1,6 @@
 'use strict';
 // this will handle dining requests
-var http = require('http');
+import http from 'http';
 var https = require('https');
 var cookie = require('cookie');
 var querystring = require('querystring');
@@ -118,15 +118,19 @@ var isReservationAvailable = function(reservation) {
         });
         console.log(times);
         // add the results to the reservation data
+        const searchText = $('.diningReservationInfoText.available').text().trim();
         return merge(true, {
             results: {
                 times: times,
-                searchText: $('.diningReservationInfoText.available').text().trim()
+                searchText: searchText
+            },
+            notification: {
+                text: response.results.searchText + '\r\n' + response.results.times.join(' '),
+                html: response.results.searchText + '<br\><br\>' + response.results.times.join(' ')
             }
         }, reservation)
     }
 };
-
 module.exports = function(reservation) {
     // run 
     return getSessionData(reservation).then(getReservationData).then(isReservationAvailable);
