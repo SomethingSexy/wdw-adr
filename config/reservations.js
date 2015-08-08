@@ -5,7 +5,7 @@ export default [{
 	url: 'https://disneyworld.disney.go.com/dining/magic-kingdom/be-our-guest-restaurant/',
 	time: 'dinner',
 	date: '2015-11-06',
-	partySize: 2,
+	partySize: 6,
 	notify : ['kelly', 'tyler']
 },{
 	id : '90001248;entityType=restaurant',
