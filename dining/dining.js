@@ -113,20 +113,22 @@ var isReservationAvailable = function(reservation) {
     } else {
         // assuming there are some times available
         // now grab the actual available times
-        var times = $('.pillLink', '.ctaAvailableTimesContainer').get().map(function(i, el) {
+        var times = $('.pillLink', '.ctaAvailableTimesContainer').get().map((i, el) => {
             return $('.buttonText', el).text();
         });
         console.log(times);
         // add the results to the reservation data
         const searchText = $('.diningReservationInfoText.available').text().trim();
+        // use the results for just the raw data
+        // notification will be the data used if a notification is being sent
         return merge(true, {
             results: {
                 times: times,
                 searchText: searchText
             },
             notification: {
-                text: response.results.searchText + '\r\n' + response.results.times.join(' '),
-                html: response.results.searchText + '<br\><br\>' + response.results.times.join(' ')
+                bodyText: response.results.searchText + '\r\n' + response.results.times.join(' '),
+                bodyHtml: response.results.searchText + '<br\><br\>' + response.results.times.join(' ')
             }
         }, reservation)
     }

@@ -6,4 +6,11 @@ export default [{
 	date: '2015-11-06',
 	partySize: 2,
 	notify : ['person1', 'person2']
+},{
+	id : '90001248;entityType=restaurant',
+	url: 'https://disneyworld.disney.go.com/dining/wilderness-lodge-resort/artist-point/',
+	time: 'dinner',
+	date: '2015-11-06',
+	partySize: 2,
+	notify : ['person1', 'person2']
 }];
