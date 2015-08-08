@@ -1,5 +1,5 @@
 'use strict';
-module.exports = [{
+export default [{
 	id : '16660079;entityType=restaurant',
 	url: 'https://disneyworld.disney.go.com/dining/magic-kingdom/be-our-guest-restaurant/',
 	time: 'dinner',

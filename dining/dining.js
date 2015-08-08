@@ -1,12 +1,12 @@
 'use strict';
 // this will handle dining requests
 import http from 'http';
-var https = require('https');
-var cookie = require('cookie');
-var querystring = require('querystring');
-var cheerio = require('cheerio');
-var Q = require('q');
-var merge = require('merge');
+import https from 'https';
+import cookie from 'cookie';
+import querystring from 'querystring';
+import cheerio from 'cheerio';
+import Q from 'q';
+import merge from 'merge';
 /**
  * Function to get session cookie and csrf token
  */
@@ -131,7 +131,8 @@ var isReservationAvailable = function(reservation) {
         }, reservation)
     }
 };
-module.exports = function(reservation) {
+
+export default function(reservation) {
     // run 
     return getSessionData(reservation).then(getReservationData).then(isReservationAvailable);
 };

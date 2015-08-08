@@ -1,9 +1,9 @@
 'use strict';
-var nodemailer = require('nodemailer');
-var emailConfig = require('./config/email');
+import nodemailer from 'nodemailer';
+import emailConfig from './config/email';
 
 // setup email transporter
-var transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
     host: emailConfig.host,
     port: emailConfig.port,
     auth: emailConfig.auth
@@ -22,4 +22,5 @@ var notify = function(response) {
     }
     return response;
 };
-module.exports = notify;
+
+export default notify;

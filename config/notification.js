@@ -1,5 +1,5 @@
 'use strict';
-module.exports = {
+export default {
 	'person1' : {
 		email : '',
 		enabled: true
