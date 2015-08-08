@@ -15,9 +15,9 @@ var notify = function(response) {
         transporter.sendMail({
             from: 'admin@collectionstash.com',
             to: 'tyler.cvetan@gmail.com',
-            subject: 'Reservation',
-            text: response.results.searchText + '\r\n' + response.results.times.join(' '),
-            html: response.results.searchText + '<br\><br\>' + response.results.times.join(' ')
+            subject: 'Reservation - ' + response.title,
+            text: response.notification.bodyText,
+            html: response.notification.bodyHtml
         });
     }
     return response;

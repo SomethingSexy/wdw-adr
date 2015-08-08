@@ -86,7 +86,6 @@ var getReservationData = function(reservation) {
             });
             response.on('end', function() {
                 console.log(response.statusCode);
-                console.log(response.statusMessage);
                 // add the raw response to the reservation data
                 resolve(merge(true, {
                     rawData: str,
@@ -105,35 +104,37 @@ var getReservationData = function(reservation) {
  * This function will process the data in a more human readable format
  */
 var isReservationAvailable = function(reservation) {
-    console.log('processing response');
-    console.log(reservation.rawData);
-    var $ = cheerio.load(reservation.rawData);
-    if (!$('#diningAvailabilityFlag').data('hasavailability')) {
-        return false;
-    } else {
-        // assuming there are some times available
-        // now grab the actual available times
-        var times = $('.pillLink', '.ctaAvailableTimesContainer').get().map((i, el) => {
-            return $('.buttonText', el).text();
-        });
-        console.log(times);
-        // add the results to the reservation data
-        const searchText = $('.diningReservationInfoText.available').text().trim();
-        // use the results for just the raw data
-        // notification will be the data used if a notification is being sent
-        return merge(true, {
-            results: {
-                times: times,
-                searchText: searchText
-            },
-            notification: {
-                bodyText: response.results.searchText + '\r\n' + response.results.times.join(' '),
-                bodyHtml: response.results.searchText + '<br\><br\>' + response.results.times.join(' ')
-            }
-        }, reservation)
-    }
+    return Q.Promise(function(resolve, reject, notify) {
+        console.log('processing response');
+        let $ = cheerio.load(reservation.rawData);
+        if (!$('#diningAvailabilityFlag').data('hasavailability')) {
+            console.log('no availablity');
+            resolve(false);
+        } else {
+            // assuming there are some times available
+            // now grab the actual available times
+            var times = $('.pillLink', '.ctaAvailableTimesContainer').get().map((el) => {
+                return $('.buttonText', el).text();
+            });
+            // add the results to the reservation data
+            const searchText = $('.diningReservationInfoText.available').text().trim();
+            // use the results for just the raw data
+            // notification will be the data used if a notification is being sent
+            console.log('has availablity');
+            resolve(merge(true, {
+                results: {
+                    times: times,
+                    searchText: searchText
+                },
+                notification: {
+                    subject: reservation.title,
+                    bodyText: searchText + '\r\n' + times.join(' '),
+                    bodyHtml: searchText + '<br\><br\>' + times.join(' ')
+                }
+            }, reservation));
+        }
+    });
 };
-
 export default function(reservation) {
     // run 
     return getSessionData(reservation).then(getReservationData).then(isReservationAvailable);
