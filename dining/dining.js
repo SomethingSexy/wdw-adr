@@ -44,7 +44,7 @@ const reservationDataRequest = function reservationDataRequest(reservation, reso
   let time;
   if (reservation.time === 'dinner') {
     time = '80000714';
-  } if(reservation.time === 'breakfast'){
+  } else if (reservation.time === 'breakfast'){
     time = '80000712';
   } else {
     time = reservation.time;
@@ -111,13 +111,13 @@ const reservationDataRequest = function reservationDataRequest(reservation, reso
 /**
  * This function will attempt to retrieve reservation availablity data
  */
-const getReservationData = function(reservation) {
+const getReservationData = function getReservationData(reservation) {
   return Q.Promise(reservationDataRequest.bind(undefined, reservation));
 };
 /**
  * This function will process the data in a more human readable format
  */
-const isReservationAvailable = function(reservation) {
+const isReservationAvailable = function isReservationAvailable(reservation) {
   return Q.Promise(function(resolve, reject) {
     console.log('processing response');
     console.log(reservation.rawData);
