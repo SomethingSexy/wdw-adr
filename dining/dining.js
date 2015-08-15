@@ -1,4 +1,4 @@
-'use strict';
+
 // this will handle dining requests
 import http from 'http';
 import https from 'https';
