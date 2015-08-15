@@ -7,7 +7,7 @@ import cheerio from 'cheerio';
 import Q from 'q';
 import merge from 'merge';
 
-const sessionDataRequest = function sessionDataRequest(resolve, reject) {
+const sessionDataRequest = function sessionDataRequest(reservation, resolve, reject) {
   console.log('running session call');
 
   let initReq = https.get(reservation.url, function(res) {
@@ -27,7 +27,7 @@ const sessionDataRequest = function sessionDataRequest(resolve, reject) {
         csrfToken: csrfToken
       }, reservation));
     });
-  }).on('error', function(e) {
+  }).on('error', function sessionRequestError(e) {
     reject(new Error('cannot retrieve session data ' + e.message));
   });
 };
@@ -36,10 +36,10 @@ const sessionDataRequest = function sessionDataRequest(resolve, reject) {
  * Function to get session cookie and csrf token
  */
 const getSessionData = function getSessionData(reservation) {
-  return Q.Promise(sessionDataRequest);
+  return Q.Promise(sessionDataRequest.bind(undefined, reservation));
 };
 
-const reservationDataRequest = function reservationDataRequest(resolve, reject) {
+const reservationDataRequest = function reservationDataRequest(reservation, resolve, reject) {
   console.log('running reservation call');
   let time;
   if (reservation.time === 'dinner') {
@@ -98,8 +98,9 @@ const reservationDataRequest = function reservationDataRequest(resolve, reject) 
     });
   };
 
-  const wdwReq = https.request(options, callback).on('error', function(err) {
+  const wdwReq = https.request(options, callback).on('error', function reservationRequestError(err) {
     console.log(err);
+    reject(err);
   });
 
   // This is the data we are posting, it needs to be a string or a buffer
@@ -111,7 +112,7 @@ const reservationDataRequest = function reservationDataRequest(resolve, reject) 
  * This function will attempt to retrieve reservation availablity data
  */
 const getReservationData = function(reservation) {
-  return Q.Promise(reservationDataRequest);
+  return Q.Promise(reservationDataRequest.bind(undefined, reservation));
 };
 /**
  * This function will process the data in a more human readable format
