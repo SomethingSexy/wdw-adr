@@ -10,8 +10,12 @@ import merge from 'merge';
 const sessionDataRequest = function sessionDataRequest(reservation, resolve, reject) {
   console.log('running session call');
 
-  let initReq = https.get(reservation.url, function(res) {
-    const sessionCookie = cookie.parse(res.headers['set-cookie'].join(';'))['PHPSESSID'];
+  https.get(reservation.url, (res) => {
+    if (!res.headers['set-cookie']) {
+      reject(new Error('cannot retrieve session cookie'));
+    }
+
+    const sessionCookie = cookie.parse(res.headers['set-cookie'].join(';')).PHPSESSID;
     let data = '';
 
     res.on('data', function(chunk) {
