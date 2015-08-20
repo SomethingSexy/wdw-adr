@@ -7,24 +7,25 @@ import cheerio from 'cheerio';
 import Q from 'q';
 import merge from 'merge';
 
-const sessionDataRequest = function sessionDataRequest(reservation, resolve, reject) {
-  console.log('running session call');
+const sessionDataRequest = (reservation, resolve, reject) => {
+  console.log('running session call'); // eslint-disable-line no-console
 
   https.get(reservation.url, (res) => {
     if (!res.headers['set-cookie']) {
       reject(new Error('cannot retrieve session cookie'));
+      return;
     }
 
     const sessionCookie = cookie.parse(res.headers['set-cookie'].join(';')).PHPSESSID;
     let data = '';
 
-    res.on('data', function(chunk) {
+    res.on('data', (chunk) => {
       data += chunk;
     });
 
-    res.on('end', function() {
-      let $ = cheerio.load(data);
-      let csrfToken = $('#pep_csrf').val();
+    res.on('end', () => {
+      const $ = cheerio.load(data);
+      const csrfToken = $('#pep_csrf').val();
       // add the necessary data to the reservation
       resolve(merge(true, {
         sessionCookie: sessionCookie,
@@ -40,21 +41,21 @@ const sessionDataRequest = function sessionDataRequest(reservation, resolve, rej
  * Function to get session cookie and csrf token
  */
 const getSessionData = function getSessionData(reservation) {
-  return Q.Promise(sessionDataRequest.bind(undefined, reservation));
+  return Q.Promise(sessionDataRequest.bind(undefined, reservation)); // eslint-disable-line new-cap
 };
 
 const reservationDataRequest = function reservationDataRequest(reservation, resolve, reject) {
-  console.log('running reservation call');
+  console.log('running reservation call'); // eslint-disable-line no-console
   let time;
   if (reservation.time === 'dinner') {
     time = '80000714';
-  } else if (reservation.time === 'breakfast'){
+  } else if (reservation.time === 'breakfast') {
     time = '80000712';
   } else {
     time = reservation.time;
   }
 
-  let postData = querystring.stringify({
+  const postData = querystring.stringify({
     pep_csrf: reservation.csrfToken,
     searchDate: reservation.date,
     skipPricing: true,
@@ -88,22 +89,22 @@ const reservationDataRequest = function reservationDataRequest(reservation, reso
     }
   };
 
-  const callback = function(response) {
+  const callback = (response) => {
     let str = '';
-    response.on('data', function(chunk) {
-        str += chunk;
+    response.on('data', (chunk) => {
+      str += chunk;
     });
-    response.on('end', function() {
-      console.log(response.statusCode);
+    response.on('end', () => {
+      console.log(response.statusCode); // eslint-disable-line no-console
       // add the raw response to the reservation data
       resolve(merge(true, {
-        rawData: str,
+        rawData: str
       }, reservation));
     });
   };
 
   const wdwReq = https.request(options, callback).on('error', function reservationRequestError(err) {
-    console.log(err);
+    console.log(err); // eslint-disable-line no-console
     reject(err);
   });
 
@@ -116,30 +117,30 @@ const reservationDataRequest = function reservationDataRequest(reservation, reso
  * This function will attempt to retrieve reservation availablity data
  */
 const getReservationData = function getReservationData(reservation) {
-  return Q.Promise(reservationDataRequest.bind(undefined, reservation));
+  return Q.Promise(reservationDataRequest.bind(undefined, reservation)); // eslint-disable-line new-cap
 };
 /**
  * This function will process the data in a more human readable format
  */
 const isReservationAvailable = function isReservationAvailable(reservation) {
-  return Q.Promise(function(resolve, reject) {
-    console.log('processing response');
-    console.log(reservation.rawData);
-    let $ = cheerio.load(reservation.rawData);
+  return Q.Promise((resolve) => { // eslint-disable-line new-cap
+    console.log('processing response'); // eslint-disable-line no-console
+    console.log(reservation.rawData); // eslint-disable-line no-console
+    const $ = cheerio.load(reservation.rawData);
     if (!$('#diningAvailabilityFlag').data('hasavailability')) {
-      console.log('no availablity');
+      console.log('no availablity'); // eslint-disable-line no-console
       resolve(false);
     } else {
       // assuming there are some times available
       // now grab the actual available times
-      var times = $('.pillLink', '.ctaAvailableTimesContainer').get().map((el) => {
-          return $('.buttonText', el).text();
+      const times = $('.pillLink', '.ctaAvailableTimesContainer').get().map((el) => {
+        return $('.buttonText', el).text();
       });
       // add the results to the reservation data
       const searchText = $('.diningReservationInfoText.available').text().trim();
       // use the results for just the raw data
       // notification will be the data used if a notification is being sent
-      console.log('has availablity');
+      console.log('has availablity'); // eslint-disable-line no-console
       resolve(merge(true, {
         results: {
           times: times,
