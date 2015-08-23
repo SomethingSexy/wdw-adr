@@ -3,11 +3,11 @@ import notify from './notify';
 import reservations from './config/reservations';
 import schedule from 'node-schedule';
 
-var processReservations = function(element, index, array) {
+const processReservations = (element) => {
   dining(element).then(notify);
 };
 
 // cron style, run every 15 minutes
-schedule.scheduleJob('*/15 * * * *', function() {
+schedule.scheduleJob('*/15 * * * *', () => {
   reservations.forEach(processReservations);
 });
