@@ -49,6 +49,8 @@ const reservationDataRequest = function reservationDataRequest(reservation, reso
   let time;
   if (reservation.time === 'dinner') {
     time = '80000714';
+  } else if (reservation.time === 'lunch') {
+    time = '80000717';
   } else if (reservation.time === 'breakfast') {
     time = '80000712';
   } else {
