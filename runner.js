@@ -4,6 +4,7 @@ import reservations from './config/reservations';
 import schedule from 'node-schedule';
 
 // 15,000 * 14 minutes = 840,000
+// shouldn't take a minute to run but just being safe
 const max = 840000;
 const min = 0;
 
@@ -14,7 +15,7 @@ const processReservations = (element) => {
 // cron style, run every 15 minutes
 schedule.scheduleJob('*/15 * * * *', () => {
   const interval = Math.floor(Math.random() * (max - min + 1)) + min;
-  console.log('interval for this run ' + interval);
+  console.log('interval for this run ' + Math.floor((interval % 3600000) / 60000));
   // at 15 minutes, then run the job randomly within there
   setTimeout(() => {
     reservations.forEach(processReservations);
