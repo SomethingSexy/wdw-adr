@@ -1,5 +1,5 @@
 const venues = {
-  '50sPrimeTimeCafe': {
+  '50s Prime Time Cafe': {
     id: '90001216;entityType=restaurant',
     title: '50s Prime Time Cafe',
     url: 'https://disneyworld.disney.go.com/dining/hollywood-studios/50s-prime-time-cafe/'
