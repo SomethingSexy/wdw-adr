@@ -15,7 +15,7 @@ const processReservations = (element) => {
 // cron style, run every 15 minutes
 schedule.scheduleJob('*/15 * * * *', () => {
   const interval = Math.floor(Math.random() * (max - min + 1)) + min;
-  console.log('interval for this run ' + Math.floor((interval % 3600000) / 60000) + ' minutes.');
+  console.log('interval for this run is ' + Math.floor((interval % 3600000) / 60000) + ' minutes.');
   // at 15 minutes, then run the job randomly within there
   setTimeout(() => {
     reservations.forEach(processReservations);
