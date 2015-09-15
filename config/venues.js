@@ -125,6 +125,11 @@ const venues = {
     id: '225150;entityType=Dining-Event',
     title: 'Culinary Demonstrations',
     url: 'https://disneyworld.disney.go.com/dining/epcot/food-wine-culinary-demonstrations/'
+  },
+  'Narcoossees': {
+    id: '90001983;entityType=restaurant',
+    title: 'Narcoossee\'s',
+    url: 'https://disneyworld.disney.go.com/dining/grand-floridian-resort-and-spa/narcoossees/'
   }
 };
 

@@ -6,6 +6,7 @@ import querystring from 'querystring';
 import cheerio from 'cheerio';
 import Q from 'q';
 import merge from 'merge';
+import venues from '../config/venues';
 
 const sessionDataRequest = (reservation, resolve, reject) => {
   console.log('running session call'); // eslint-disable-line no-console
@@ -159,6 +160,15 @@ const isReservationAvailable = function isReservationAvailable(reservation) {
 };
 
 export default function(reservation) {
+  if (!reservation.id) {
+    return Promise.reject('Your revservation is missing an id.');
+  }
+
+  const reservationConfig = venues[reservation.id];
+  if (!reservationConfig) {
+    return Promise.reject('Could not find configuration for reservation ' + reservation.id);
+  }
+
     // run
-  return getSessionData(reservation).then(getReservationData).then(isReservationAvailable);
+  return getSessionData(merge(true, reservation, reservationConfig)).then(getReservationData).then(isReservationAvailable);
 }
