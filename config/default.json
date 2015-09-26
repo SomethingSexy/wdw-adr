@@ -1,0 +1,30 @@
+{
+	"email": {
+    "host": "",
+    "port": 0,
+    "auth": {
+      "user": "",
+      "pass": ""
+    },
+    "from": ""
+  },
+  "reservations": [{
+    "id": "",
+    "title": "",
+    "url": "",
+    "time": "",
+    "date": "",
+    "partySize": 0,
+    "notify": []
+  }],
+  "notifications": {
+    "" : {
+      "email" : "",
+      "enabled": true
+    },
+    "" : {
+      "email": "",
+      "enabled": true
+    }
+  }
+}
