@@ -12,7 +12,7 @@ const notify = (response, person) => {
   transporter.sendMail({
     from: config.get('email.from'),
     to: person.email,
-    subject: 'Reservation - ' + response.title,
+    subject: response.notification.subject,
     text: response.notification.bodyText,
     html: response.notification.bodyHtml
   });

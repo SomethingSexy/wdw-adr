@@ -150,7 +150,7 @@ const isReservationAvailable = function isReservationAvailable(reservation) {
           searchText: searchText
         },
         notification: {
-          subject: reservation.title + ': ' + times.join(' '),
+          subject: 'Reservation - ' + response.title + ': ' + times.join(' '),
           bodyText: searchText + '\r\n' + times.join(' '),
           bodyHtml: searchText + '<br\><br\>' + times.join(' ')
         }
